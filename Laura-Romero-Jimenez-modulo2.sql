@@ -29,7 +29,7 @@ WHERE rating = 'PG-13';
 /* Ejercicio 3: Encuentra el título y la descripción de todas las películas que contengan la palabra "amazing" en su descripción. */
  
 -- Está pidiendo nombre y descripcion de las peliculas (title, description) y añade una condicion sobre una palabra que debe contener
--- para ello en la clausula WHERE tendremos que añadir operadores especiales de filtro de tipo like o regex
+-- para ello en la clausula WHERE tendremos que añadir operadores especiales de filtro, en este caso usaré LIKE
  
 SELECT title, description 
 FROM film
@@ -75,8 +75,8 @@ WHERE last_name ='gibson';
  
 /* Ejercicio 7: Encuentra los nombres de los actores que tengan un actor_id entre 10 y 20. */
  
--- Nos pide los nombres (first_name) de los actores con actor_id entre 10 y 20, no se muy bien si 
--- quiere que el 10 y el 20 estén también incluidos. 
+-- Nos pide los nombres (first_name) de los actores con actor_id entre 10 y 20, para lo cual incluimos
+-- la clausula BETWEEN 
 
 SELECT first_name
 FROM actor 
@@ -101,7 +101,7 @@ WHERE NOT rating = 'PG-13' AND NOT rating = 'R';
 /* Ejercicio 9: Encuentra la cantidad total de películas en cada clasificación de la tabla film y muestra la clasificación 
 junto con el recuento. */
  
- -- Está pidiendo que agrupemos (GROUP BY) según la clasificación (rating) y calculemos la cantidad (COUNT) para cada grupo
+ -- Está pidiendo que agrupemos según la clasificación (GROUP BY rating) y calculemos la cantidad de peliculas (COUNT(film_id)) para cada grupo
  
  SELECT COUNT(film_id) AS films_by_rating, rating
  FROM film
@@ -111,7 +111,7 @@ junto con el recuento. */
 /* Ejercicio 10: Encuentra la cantidad total de películas alquiladas por cada cliente y muestra el ID del cliente, su nombre y
  apellido junto con la cantidad de películas alquiladas. */
  
--- Está pidiendo cantidad peliculas (COUNT) alquiladas por cada cliente (GROUP BY customer_id), customer_id, first_name y last_name
+-- Está pidiendo cantidad peliculas alquiladas (COUNT (rental_id)) por cada cliente (GROUP BY customer_id), customer_id, first_name y last_name
 -- En customer tengo acceso a los datos de cada cliente, y está relacionada con rental por la columna customer_id 
 -- En rental tengo acceso a cada alquiler de pelicula, no tengo el dato del nombre de la pelicula pero para este ejercicio no hace falta
 -- Cada rental_id va relacionado con el alquiler de una sola pelicula, porque va a asociado a inventory_id que en la tabla inventory va asociado a film_id
@@ -126,7 +126,7 @@ GROUP BY customer_id;
  /* Ejercicio 11: Encuentra la cantidad total de películas alquiladas por categoría y muestra el nombre de la categoría junto con el
  recuento de alquileres. */
  
--- Está pidiendo cantidad peliculas alquiladas (COUNT rental_id) según la categoria (GROUP BY category_id) mostrando el nombre de la categoria (name)
+-- Está pidiendo cantidad peliculas alquiladas (COUNT (rental_id)) según la categoria (GROUP BY category_id) mostrando el nombre de la categoria (name)
 -- Para el ejercicio necesito tener acceso a los alquileres (rental_id) de la tabla rental, y categorias (rating) de la tabla film
 -- Entre rental y film no hay relación directa, así que tendremos que usar la tabla inventory que tiene columnas en comun com ambas tablas 
 
@@ -145,7 +145,7 @@ GROUP BY category_id;
 /* Ejercicio 12: Encuentra el promedio de duración de las películas para cada clasificación de la tabla film y muestra la
  clasificación junto con el promedio de duración. */
  
--- Está pidiendo el promedio (AVG) de la duracion (length) de las peliculas para cada clasificacion (GROUP BY rating)
+-- Está pidiendo el promedio (AVG(length)) de las peliculas para cada clasificacion (GROUP BY rating)
 
 SELECT AVG (length) AS average_length, rating
 FROM film
@@ -186,9 +186,9 @@ WHERE description LIKE '%dog%' OR description LIKE '%cat%';
  
 /* Ejercicio 15: Hay algún actor o actriz que no apareca en ninguna película en la tabla film_actor. */
  
--- Nos está pidiendo que verifiquemos si hay registros nulos de actores que no han participado en ninguna pelicula
--- Para ello usaré dos tablas, film_actor donde aparecen los id de los diferentes actores y film donde aparecen los titulos y id de las peliculas
--- Usando una tabla combinada miraré si para algún actor_id no hay registros asociados en film_id
+-- Nos está pidiendo que verifiquemos si hay registros nulos de actores que no han participado en ninguna pelicula. Para ello usaré dos tablas, 
+-- film_actor donde aparecen los id de los diferentes actores y film donde aparecen los titulos y id de las peliculas. Usando un JOIN miraré si para algún 
+-- actor_id no hay registros asociados en film_id, en este caso no valdría un INNER JOIN porque elimina registros nulos, así que en este caso usaré un left join
  
 SELECT actor_id, fa.film_id
 FROM film_actor AS fa
@@ -200,7 +200,7 @@ WHERE fa.film_id IS NULL;
  
 /* Ejercicio 16: Encuentra el título de todas las películas que fueron lanzadas entre el año 2005 y 2010.*/
 
--- Está pidiendo el titulo (title) de las peliculas lanzadas entre el año 2005 y 2010 (release_year), no se si quiere que 2005 y 2010 esten incluidos
+-- Está pidiendo el titulo (title) de las peliculas lanzadas entre el año 2005 y 2010 (release_year), para lo cual usare la clausula BETWEEN
 -- Toda esta informacion la tenemos en la tabla film
 
 SELECT title 
@@ -213,7 +213,7 @@ WHERE release_year BETWEEN 2005 AND 2010;
  /* Ejercicio 17: Encuentra el título de todas las películas que son de la misma categoría que "Family". */
  
  -- Está pidiendo el titulo (title) de la tabla film o film_text, con la condicion de que sean de la categoria (name en la tabla category) Family
- -- Para ello tenemos que acceder a todas las tablas que necesitamos, en este caso film, category, y film_category
+ -- Para ello tenemos que usar las tablas film, category, y film_category
  -- Se podría hacer con JOIN usando las diferentes tablas necesarias, también con CTE's, en este caso lo voy a hacer con una subquery
  
  SELECT title 
@@ -260,7 +260,7 @@ WHERE rating = 'R' AND length > 120;
 /* Ejercicio 20: Encuentra las categorías de películas que tienen un promedio de duración superior a 120 minutos y muestra el
  nombre de la categoría junto con el promedio de duración. */
  
- -- Se nos pide calcular un promedio de duracion (AVG) por las peliculas agrupadas (GROUP BY) segun su categoria, y mostrar solo aquellas con una 
+ -- Se nos pide calcular un promedio de duracion (AVG(length)) por las peliculas agrupadas segun su categoria (GROUP BY name), y mostrar solo aquellas con una 
  -- duracion mayor a 120 minutos, mostrando también el nombre de la categoria (name)
  -- Para ello necesitamos usar tres tablas, film, donde tengo acceso a la duracion, film_category como tabla intermedia que me sirve de conexion entre
  -- film y category, y la ultima tabla es category, donde tengo acceso a las diferentes categorias según su name
@@ -278,7 +278,7 @@ WHERE rating = 'R' AND length > 120;
 /* Ejercicio 21: Encuentra los actores que han actuado en al menos 5 películas y muestra el nombre del actor junto con la
  cantidad de películas en las que han actuado. */
  
- -- Pide que mostremos nombre de actor (first_name) y el recuento de peliculas (COUNT film_id) de aquellos actores que hayan actuado en 5 o más peliculas
+ -- Pide que mostremos nombre de actor (first_name) y el recuento de peliculas (COUNT (film_id)) de aquellos actores que hayan actuado en 5 o más peliculas
  -- Por como esta el enunciado, entiendo que el 5 en este caso sí estaría incluido en la consulta. 
  -- Para el ejercicio necesito usar la tabla actor, que tiene informacion del nombre del actor, y la tabla film_actor, que relaciona los actores con los 
  -- film_id de las peliculas en las que han actuado
